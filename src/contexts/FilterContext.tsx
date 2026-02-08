@@ -43,6 +43,8 @@ const defaultSort: SortConfig = {
 	direction: "asc",
 };
 
+const PRESERVED_PARAMS = ["origin", "dest", "date", "return", "pax"] as const;
+
 // ─── URL Params Parsing ─────────────────────────────────────────
 
 function parseSortFromUrl(params: URLSearchParams): Partial<SortConfig> {
@@ -94,21 +96,14 @@ export function FilterProvider({ form, flights, children }: FilterProviderProps)
 	useEffect(() => {
 		if (!initializedRef.current) return;
 
-		const params = new URLSearchParams(searchParamsRef.current);
+		const prev = searchParamsRef.current;
+		const newParams = new URLSearchParams();
 
 		// Preserve non-filter params
-		const origin = params.get("origin");
-		const dest = params.get("dest");
-		const date = params.get("date");
-		const returnDate = params.get("return");
-		const pax = params.get("pax");
-
-		const newParams = new URLSearchParams();
-		if (origin) newParams.set("origin", origin);
-		if (dest) newParams.set("dest", dest);
-		if (date) newParams.set("date", date);
-		if (returnDate) newParams.set("return", returnDate);
-		if (pax) newParams.set("pax", pax);
+		for (const key of PRESERVED_PARAMS) {
+			const value = prev.get(key);
+			if (value) newParams.set(key, value);
+		}
 
 		if (debouncedFilters.stops.length > 0) {
 			newParams.set("stops", debouncedFilters.stops.join(","));

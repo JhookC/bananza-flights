@@ -25,7 +25,14 @@ import AsyncAutocomplete from "../common/AsyncAutocomplete.tsx";
 import DatePickerField from "../common/DatePickerField.tsx";
 import PassengerCounter from "../common/PassengerCounter.tsx";
 
+type TripType = "oneWay" | "roundTrip";
+
 const airportEqual = (a: Airport, b: Airport) => a.iataCode === b.iataCode;
+
+const TRIP_OPTIONS: { value: TripType; label: string }[] = [
+	{ value: "oneWay", label: "One Way" },
+	{ value: "roundTrip", label: "Round Trip" },
+];
 
 export default function SearchForm() {
 	const { control, handleSubmit, watch, setValue, getValues } =
@@ -33,7 +40,6 @@ export default function SearchForm() {
 	const navigate = useNavigate();
 	const { addSearch } = useRecentSearches();
 
-	type TripType = "oneWay" | "roundTrip";
 	const [tripType, setTripType] = useState<TripType>("roundTrip");
 
 	const handleTripType = (type: TripType) => {
@@ -137,11 +143,6 @@ export default function SearchForm() {
 		</>
 	);
 
-	const tripOptions: { value: TripType; label: string }[] = [
-		{ value: "oneWay", label: "One Way" },
-		{ value: "roundTrip", label: "Round Trip" },
-	];
-
 	return (
 		<Box component="form" onSubmit={handleSubmit(onSubmit)}>
 			<Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
@@ -153,7 +154,7 @@ export default function SearchForm() {
 						p: 0.5,
 					}}
 				>
-					{tripOptions.map((opt) => {
+					{TRIP_OPTIONS.map((opt) => {
 						const active = tripType === opt.value;
 						return (
 							<ButtonBase

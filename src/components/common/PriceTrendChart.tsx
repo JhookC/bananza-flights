@@ -6,12 +6,11 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import MuiTooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
 	Area,
 	AreaChart,
 	CartesianGrid,
-	ResponsiveContainer,
 	Tooltip,
 	XAxis,
 } from "recharts";
@@ -32,6 +31,7 @@ const RANGE_OPTIONS: { value: PriceTrendRange; label: string }[] = [
 ];
 
 const GRADIENT_ID = "priceTrendGradient";
+const STROKE_COLOR = "#FBCB46";
 
 export default function PriceTrendChart({
 	data,
@@ -41,7 +41,24 @@ export default function PriceTrendChart({
 	onRangeChange,
 }: PriceTrendChartProps) {
 	const theme = useTheme();
-	const strokeColor = "#FBCB46";
+
+	// Track container size so we can pass explicit dimensions to AreaChart
+	// (avoids ResponsiveContainer's -1 dimension warning inside Collapse)
+	const observerRef = useRef<ResizeObserver | null>(null);
+	const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
+	const containerRef = useCallback((el: HTMLDivElement | null) => {
+		observerRef.current?.disconnect();
+		observerRef.current = null;
+		if (!el) return;
+		const observer = new ResizeObserver(([entry]) => {
+			const { width, height } = entry.contentRect;
+			setChartSize((prev) =>
+				prev.width === width && prev.height === height ? prev : { width, height },
+			);
+		});
+		observer.observe(el);
+		observerRef.current = observer;
+	}, []);
 
 	const { lowestPrice, trendPercent, trendDirection } = useMemo(() => {
 		if (data.length < 2)
@@ -121,11 +138,11 @@ export default function PriceTrendChart({
 	const activeDotStyle = useMemo(
 		() => ({
 			r: 5,
-			fill: strokeColor,
+			fill: STROKE_COLOR,
 			stroke: theme.palette.background.paper,
 			strokeWidth: 2,
 		}),
-		[strokeColor, theme.palette.background.paper],
+		[theme.palette.background.paper],
 	);
 
 	const chartStyle = useMemo(
@@ -249,10 +266,12 @@ export default function PriceTrendChart({
 			</Stack>
 
 			{/* Chart */}
-			<Box sx={{ width: "100%", height: { xs: 200, md: 280 } }}>
-				<ResponsiveContainer width="100%" height="100%">
+			<Box ref={containerRef} sx={{ width: "100%", minWidth: 0, height: { xs: 200, md: 280 } }}>
+				{chartSize.width > 0 && chartSize.height > 0 && (
 					<AreaChart
 						key={chartKey}
+						width={chartSize.width}
+						height={chartSize.height}
 						data={data}
 						onClick={handleChartClick}
 						style={chartStyle}
@@ -260,10 +279,10 @@ export default function PriceTrendChart({
 					>
 						<defs>
 							<linearGradient id={GRADIENT_ID} x1="0" y1="0" x2="0" y2="1">
-								<stop offset="0%" stopColor={strokeColor} stopOpacity={0.35} />
+								<stop offset="0%" stopColor={STROKE_COLOR} stopOpacity={0.35} />
 								<stop
 									offset="100%"
-									stopColor={strokeColor}
+									stopColor={STROKE_COLOR}
 									stopOpacity={0.02}
 								/>
 							</linearGradient>
@@ -289,7 +308,7 @@ export default function PriceTrendChart({
 						<Area
 							type="monotone"
 							dataKey="value"
-							stroke={strokeColor}
+							stroke={STROKE_COLOR}
 							strokeWidth={2.5}
 							fill={`url(#${GRADIENT_ID})`}
 							dot={false}
@@ -298,7 +317,7 @@ export default function PriceTrendChart({
 							animationEasing="ease-out"
 						/>
 					</AreaChart>
-				</ResponsiveContainer>
+				)}
 			</Box>
 		</Box>
 	);

@@ -17,6 +17,15 @@ if (!BASE_URL || !API_KEY || !API_SECRET) {
 	);
 }
 
+// ─── Notification Interceptor ───────────────────────────────────
+
+type NotifyFn = (message: string, severity?: "info" | "warning" | "error") => void;
+let notifyFn: NotifyFn | null = null;
+
+export function setApiNotifier(fn: NotifyFn): void {
+	notifyFn = fn;
+}
+
 // ─── Token Management ───────────────────────────────────────────
 
 let cachedToken: string | null = null;
@@ -47,15 +56,6 @@ export async function getAccessToken(): Promise<string> {
 	cachedToken = data.access_token;
 	tokenExpiresAt = now + (data.expires_in - 60) * 1000;
 	return cachedToken;
-}
-
-// ─── Notification Interceptor ───────────────────────────────────
-
-type NotifyFn = (message: string, severity?: "info" | "warning" | "error") => void;
-let notifyFn: NotifyFn | null = null;
-
-export function setApiNotifier(fn: NotifyFn): void {
-	notifyFn = fn;
 }
 
 // ─── Request Queue (throttle to avoid 429s) ────────────────────

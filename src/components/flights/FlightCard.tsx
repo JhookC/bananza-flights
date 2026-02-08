@@ -28,10 +28,9 @@ export default function FlightCard({ flight }: FlightCardProps) {
 
 	const depDateTime = format(departureDate, "MMM D · h:mm A");
 	const arrDateTime = format(arrivalDate, "MMM D · h:mm A");
-
 	const stopsLabel = formatStopsLabel(flight.stops);
-
-	const routeSummary = `${flight.origin} to ${flight.destination}, $${flight.price.toFixed(2)}`;
+	const formattedPrice = `$${flight.price.toFixed(2)}`;
+	const routeSummary = `${flight.origin} to ${flight.destination}, ${formattedPrice}`;
 
 	return (
 		<Card role="article" aria-label={routeSummary} sx={{ overflow: "hidden" }}>
@@ -125,8 +124,8 @@ export default function FlightCard({ flight }: FlightCardProps) {
 						<Typography variant="body2" color="text.secondary">
 							{stopsLabel} · {formatDuration(flight.durationMinutes)}
 						</Typography>
-						<Typography variant="price" color="secondary.main" aria-label={`Price: $${flight.price.toFixed(2)}`}>
-							${flight.price.toFixed(2)}
+						<Typography variant="price" color="secondary.main" aria-label={`Price: ${formattedPrice}`}>
+							{formattedPrice}
 						</Typography>
 					</Stack>
 				</Stack>

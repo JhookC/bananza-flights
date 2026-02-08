@@ -1,14 +1,14 @@
-import { StrictMode, useState, useMemo } from "react";
-import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { ThemeProvider } from "@mui/material/styles";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StrictMode, useCallback, useMemo, useState } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { createAppTheme } from "./theme/index.ts";
 import App from "./App.tsx";
 import ErrorBoundary from "./components/common/ErrorBoundary.tsx";
+import { createAppTheme } from "./theme/index.ts";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,8 +24,10 @@ function Root() {
   const [mode, setMode] = useState<"light" | "dark">("light");
   const theme = useMemo(() => createAppTheme(mode), [mode]);
 
-  const toggleTheme = () =>
-    setMode((prev) => (prev === "light" ? "dark" : "light"));
+  const toggleTheme = useCallback(
+    () => setMode((prev) => (prev === "light" ? "dark" : "light")),
+    [],
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
