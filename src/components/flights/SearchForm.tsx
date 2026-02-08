@@ -4,7 +4,6 @@ import SwapHorizRounded from "@mui/icons-material/SwapHorizRounded";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
-import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -18,7 +17,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAirportSearch } from "../../hooks/useAirportSearch.ts";
-import { useNearbyAirports } from "../../hooks/useNearbyAirports.ts";
 import { useRecentSearches } from "../../hooks/useRecentSearches.ts";
 import type { SearchFormValues } from "../../schemas/searchSchema.ts";
 import type { Airport } from "../../types/index.ts";
@@ -27,13 +25,15 @@ import AsyncAutocomplete from "../common/AsyncAutocomplete.tsx";
 import DatePickerField from "../common/DatePickerField.tsx";
 import PassengerCounter from "../common/PassengerCounter.tsx";
 
+const airportEqual = (a: Airport, b: Airport) => a.iataCode === b.iataCode;
+
 export default function SearchForm() {
 	const { control, handleSubmit, watch, setValue, getValues } =
 		useFormContext<SearchFormValues>();
 	const navigate = useNavigate();
 	const { addSearch } = useRecentSearches();
 
-	type TripType = "oneWay" | "roundTrip" | "multiCity";
+	type TripType = "oneWay" | "roundTrip";
 	const [tripType, setTripType] = useState<TripType>("roundTrip");
 
 	const handleTripType = (type: TripType) => {
@@ -50,11 +50,6 @@ export default function SearchForm() {
 		useAirportSearch(originInput);
 	const { data: destResults = [], isLoading: destLoading } =
 		useAirportSearch(destInput);
-
-	const { data: nearbyAirports } = useNearbyAirports();
-	const originDefaults = nearbyAirports?.length
-		? nearbyAirports
-		: POPULAR_AIRPORTS;
 
 	const origin = watch("origin");
 	const destination = watch("destination");
@@ -111,8 +106,6 @@ export default function SearchForm() {
 		setValue("destination", o);
 	};
 
-	const airportEqual = (a: Airport, b: Airport) => a.iataCode === b.iataCode;
-
 	const renderAirportOption = (
 		props: React.HTMLAttributes<HTMLLIElement> & { key: string },
 		option: Airport,
@@ -144,12 +137,10 @@ export default function SearchForm() {
 		</>
 	);
 
-	const tripOptions: { value: TripType; label: string; disabled?: boolean }[] =
-		[
-			{ value: "oneWay", label: "One Way" },
-			{ value: "roundTrip", label: "Round Trip" },
-			{ value: "multiCity", label: "Multi City", disabled: true },
-		];
+	const tripOptions: { value: TripType; label: string }[] = [
+		{ value: "oneWay", label: "One Way" },
+		{ value: "roundTrip", label: "Round Trip" },
+	];
 
 	return (
 		<Box component="form" onSubmit={handleSubmit(onSubmit)}>
@@ -167,7 +158,6 @@ export default function SearchForm() {
 						return (
 							<ButtonBase
 								key={opt.value}
-								disabled={opt.disabled}
 								onClick={() => handleTripType(opt.value)}
 								sx={{
 									px: 2.5,
@@ -179,29 +169,9 @@ export default function SearchForm() {
 									bgcolor: active ? "background.paper" : "transparent",
 									boxShadow: active ? 1 : 0,
 									transition: "all 200ms ease",
-									position: "relative",
-									overflow: "visible",
-									"&:disabled": { opacity: 0.5 },
 								}}
 							>
 								{opt.label}
-								{opt.disabled && (
-									<Chip
-										label="Soon"
-										size="small"
-										sx={{
-											position: "absolute",
-											top: -10,
-											right: 2,
-											height: 16,
-											fontSize: "0.55rem",
-											fontWeight: 700,
-											bgcolor: "secondary.main",
-											color: "primary.main",
-											transform: "rotate(-12deg)",
-										}}
-									/>
-								)}
 							</ButtonBase>
 						);
 					})}
@@ -227,7 +197,7 @@ export default function SearchForm() {
 								<AsyncAutocomplete<Airport>
 									value={field.value}
 									options={originResults}
-									defaultOptions={originDefaults}
+									defaultOptions={POPULAR_AIRPORTS}
 									loading={originLoading}
 									onInputChange={setOriginInput}
 									onChange={field.onChange}

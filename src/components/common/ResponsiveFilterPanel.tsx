@@ -195,7 +195,7 @@ export default function ResponsiveFilterPanel({
 					},
 				}}
 			>
-				<Fab color="secondary" onClick={() => setDrawerOpen(true)}>
+				<Fab color="secondary" onClick={() => setDrawerOpen(true)} aria-label="Open filters">
 					<TuneRounded />
 				</Fab>
 			</Badge>
@@ -225,7 +225,7 @@ export default function ResponsiveFilterPanel({
 						<Button size="small" onClick={onReset}>
 							Reset
 						</Button>
-						<Fab size="small" onClick={() => setDrawerOpen(false)}>
+						<Fab size="small" onClick={() => setDrawerOpen(false)} aria-label="Close filters">
 							<CloseRounded />
 						</Fab>
 					</Stack>

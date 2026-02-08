@@ -28,15 +28,23 @@ export default function FlightResultsLayout({
 }: FlightResultsLayoutProps) {
 	const { filters, sort, filteredResults, filterOptions, form, setSort, resetFilters } =
 		useFilterState();
-	const stopOptions = filterOptions.stopOptions.map((s) => ({
-		value: s.value,
-		label: s.value >= 2 ? "2+ stops" : formatStopsLabel(s.value),
-	}));
+	const stopOptions = useMemo(
+		() =>
+			filterOptions.stopOptions.map((s) => ({
+				value: s.value,
+				label: s.value >= 2 ? "2+ stops" : formatStopsLabel(s.value),
+			})),
+		[filterOptions.stopOptions],
+	);
 
-	const airlineOptions = filterOptions.airlines.map((a) => ({
-		value: a.code,
-		label: a.name,
-	}));
+	const airlineOptions = useMemo(
+		() =>
+			filterOptions.airlines.map((a) => ({
+				value: a.code,
+				label: a.name,
+			})),
+		[filterOptions.airlines],
+	);
 
 	const activeFilterCount = useMemo(() => {
 		let count = 0;

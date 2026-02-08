@@ -1,6 +1,7 @@
 import {
 	createContext,
 	type ReactNode,
+	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -85,7 +86,9 @@ export function FilterProvider({ form, flights, children }: FilterProviderProps)
 
 	// Keep a ref to current searchParams to avoid stale closures
 	const searchParamsRef = useRef(searchParams);
-	searchParamsRef.current = searchParams;
+	useEffect(() => {
+		searchParamsRef.current = searchParams;
+	}, [searchParams]);
 
 	// Sync state → URL
 	useEffect(() => {
@@ -131,7 +134,7 @@ export function FilterProvider({ form, flights, children }: FilterProviderProps)
 		return sortFlights(filtered, sort);
 	}, [flights, filters, sort]);
 
-	const resetFilters = () => {
+	const resetFilters = useCallback(() => {
 		const options = extractFilterOptions(flights);
 		form.reset({
 			stops: [],
@@ -139,7 +142,7 @@ export function FilterProvider({ form, flights, children }: FilterProviderProps)
 			airlines: [],
 			departureTimeRange: [options.departureTimeMin, options.departureTimeMax],
 		});
-	};
+	}, [flights, form]);
 
 	const contextValue: FilterContextState = useMemo(
 		() => ({
@@ -152,8 +155,7 @@ export function FilterProvider({ form, flights, children }: FilterProviderProps)
 			setSort,
 			resetFilters,
 		}),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[filters, sort, filteredResults, filterOptions, flights.length, form],
+		[filters, sort, filteredResults, filterOptions, flights.length, form, setSort, resetFilters],
 	);
 
 	return (

@@ -31,8 +31,10 @@ export default function FlightCard({ flight }: FlightCardProps) {
 
 	const stopsLabel = formatStopsLabel(flight.stops);
 
+	const routeSummary = `${flight.origin} to ${flight.destination}, $${flight.price.toFixed(2)}`;
+
 	return (
-		<Card sx={{ overflow: "hidden" }}>
+		<Card role="article" aria-label={routeSummary} sx={{ overflow: "hidden" }}>
 			<CardContent
 				sx={{
 					p: { xs: 2.5, md: 3 },
@@ -123,7 +125,7 @@ export default function FlightCard({ flight }: FlightCardProps) {
 						<Typography variant="body2" color="text.secondary">
 							{stopsLabel} · {formatDuration(flight.durationMinutes)}
 						</Typography>
-						<Typography variant="price" color="secondary.main">
+						<Typography variant="price" color="secondary.main" aria-label={`Price: $${flight.price.toFixed(2)}`}>
 							${flight.price.toFixed(2)}
 						</Typography>
 					</Stack>

@@ -39,6 +39,7 @@ export async function getAccessToken(): Promise<string> {
 	});
 
 	if (!response.ok) {
+		notifyFn?.("Something went wrong on our end. Please try again later.", "error");
 		throw new Error(`Token request failed: ${response.status}`);
 	}
 
@@ -161,22 +162,6 @@ export async function searchAirports(
 		sort: "analytics.travelers.score",
 		view: "LIGHT",
 	});
-}
-
-export async function searchNearbyAirports(
-	latitude: number,
-	longitude: number,
-): Promise<AmadeusLocationResponse> {
-	return amadeusGet<AmadeusLocationResponse>(
-		"/v1/reference-data/locations/airports",
-		{
-			latitude: String(latitude),
-			longitude: String(longitude),
-			radius: "500",
-			"page[limit]": "10",
-			sort: "relevance",
-		},
-	);
 }
 
 export async function fetchFlightsForDate(

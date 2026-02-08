@@ -8,6 +8,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { BrowserRouter } from "react-router-dom";
 import { createAppTheme } from "./theme/index.ts";
 import App from "./App.tsx";
+import ErrorBoundary from "./components/common/ErrorBoundary.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +33,9 @@ function Root() {
         <CssBaseline />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <BrowserRouter>
-            <App toggleTheme={toggleTheme} mode={mode} />
+            <ErrorBoundary>
+              <App toggleTheme={toggleTheme} mode={mode} />
+            </ErrorBoundary>
           </BrowserRouter>
         </LocalizationProvider>
       </ThemeProvider>
